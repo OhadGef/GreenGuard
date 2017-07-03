@@ -1,8 +1,5 @@
 
-# import the necessary packages
-from pyimagesearch.tempimage import TempImage
-# import argparse
-import warnings
+from picController.pictureSaverAndSender import pictureSaverAndSender
 import datetime
 import json
 import time
@@ -12,20 +9,20 @@ import uuid
 
 
 
-class camera:
+class camera():
     def __init__(self,cameraId):
         self.cameraId = cameraId
-        self.name = "camear-1"
         self.cameraInitialise()
-        self.TempImage = TempImage()
+        self.pictureSaverAndSender = pictureSaverAndSender()
         return
 
     def cameraInitialise(self):
+        print ('[camera initialized]')
         camera = cv2.VideoCapture(0)
-        time.sleep(1.5)
+        time.sleep(2)
         status,frame = camera.read()
         if(status):
-            cv2.imwrite("img/frame-1.jpg", frame)
+            cv2.imwrite("picController/img/frame-1.jpg", frame)
             self.status = 10
             return 10
         else:
@@ -33,8 +30,8 @@ class camera:
             return 11
 
 
-    def analysis(self):
-        rule= json.load(open('theRule.json'))
+    def run(self,  stop_event):
+        rule = json.load(open('theRule.json'))
         self.myPolygon = np.array(rule["polygon"])
         self.inOut = rule['inOut']
         conf = json.load(open('conf.json'))
@@ -45,12 +42,10 @@ class camera:
         time.sleep(2)
         # allow the camera to warmup, then initialize the average frame, last
         # uploaded timestamp, and frame motion counter
-        print "[INFO] warming up..."
+        print ("[INFO] warming up...")
 
         alertNumber = 0
         avg = None
-        maske = None
-        # inOut = rule['inOut']
         lastUploaded = datetime.datetime.now()
         motionCounter = 0
         eventNumber = uuid.uuid4().int & (1<<32)-1
@@ -58,7 +53,8 @@ class camera:
 
         # capture frames from the camera
         # for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
-        while True:
+
+        while not stop_event.is_set():
             ret, frame = camera.read()
             # grab the raw NumPy array representing the image and initialize
             # the timestamp and occupied/unoccupied text
@@ -73,32 +69,36 @@ class camera:
 
             # if the average frame is None, initialize it
             if avg is None:
-                print "[INFO] starting background model..."
-                print timestamp
+                print ("[INFO] starting background model...")
+                print (timestamp)
                 avg = gray.copy().astype("float")
                 mask = np.zeros((gray.shape[0], gray.shape[1]), dtype=np.uint8)
                 cv2.fillConvexPoly(mask,self.myPolygon, 1)
                 mask = mask.astype(np.bool)
 
+
             out = np.zeros_like(gray)
             if self.inOut is 1:
                 # "looking out of the erea."
-                screan = gray
-                screan[mask] = out[mask]
+                screen = gray
+                screen[mask] = out[mask]
 
             if self.inOut is 0:
                 # print "looking in the erea."
-                screan = np.zeros_like(gray)
+                screen = np.zeros_like(gray)
                 out[mask] = gray[mask]
-                screan[mask] = out[mask]
+                screen[mask] = out[mask]
+
             else:
-                screan = gray
+                screen = gray
+
+
 
             # accumulate the weighted average between the current frame and
             # previous frames, then compute the difference between the current
             # frame and running average
-            cv2.accumulateWeighted(screan, avg, 0.5)
-            frameDelta = cv2.absdiff(screan, cv2.convertScaleAbs(avg))
+            cv2.accumulateWeighted(screen, avg, 0.5)
+            frameDelta = cv2.absdiff(screen, cv2.convertScaleAbs(avg))
 
             # threshold the delta image, dilate the thresholded image to fill
             # in holes, then find contours on thresholded image
@@ -106,7 +106,7 @@ class camera:
                                    cv2.THRESH_BINARY)[1]
             thresh = cv2.dilate(thresh, None, iterations=2)
             im2, cnts, hierarchy = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,
-                                    cv2.CHAIN_APPROX_SIMPLE)
+                                                    cv2.CHAIN_APPROX_SIMPLE)
 
             for c in cnts:
                 # if the contour is too small, ignore it
@@ -140,11 +140,11 @@ class camera:
                     if motionCounter >=  conf["min_motion_frames"]:
                         # print eventNumber, ( timestamp-lastUploaded).seconds
                         fileName = time.time()
-                        self.TempImage.createPicture(fileName, frame,eventNumber)
-                        self.TempImage.sendPicture(self.cameraId)
+                        self.pictureSaverAndSender.createPicture(fileName, frame, eventNumber)                          # create pictuer
+                        self.pictureSaverAndSender.sendPicture(self.cameraId)                                           # send picture
                         alertNumber+=1
                         # upload the image to Dropbox and cleanup the tempory image
-                        print "[UPLOAD] {}".format(ts)
+                        print ("[UPLOAD] {}".format(ts))
 
                         if (timestamp-lastUploaded).seconds >conf["min_time_events"]:
                             eventNumber = uuid.uuid4().int & (1<<32)-1
@@ -168,7 +168,7 @@ class camera:
                 cv2.imshow("Security Feed", frame)
                 cv2.imshow("Frame Delta", frameDelta)
                 cv2.imshow('Thresh', thresh)
-                cv2.imshow('screan', screan)
+                cv2.imshow('screen', screen)
 
                 key = cv2.waitKey(1) & 0xFF
 
@@ -176,8 +176,8 @@ class camera:
                 if key == ord("q"):
                     break
 
-                # clear the stream in preparation for the next frame
-                # rawCapture.truncate(0)
+                    # clear the stream in preparation for the next frame
+                    # rawCapture.truncate(0)
         camera.release()
         cv2.destroyAllWindows()
 

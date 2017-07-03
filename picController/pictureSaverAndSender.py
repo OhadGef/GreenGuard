@@ -2,11 +2,16 @@
 import os
 import cv2
 import requests
-class TempImage:
+from webConfig import *
+
+class pictureSaverAndSender:
+
     def __init__(self):
-        self.base ="img/"
+        self.base ="picController/img/"
         self.ext = ".jpg"
-        self.serverIp = '192.168.1.11'
+
+
+
         return
 
     def createPicture(self, fileName, frame, eventNumber):
@@ -21,7 +26,6 @@ class TempImage:
         self.path = "{path}/{fileName}{ext}".format(path=os.path.join(self.base, str(eventNumber)), fileName=fileName,
                                                     ext=self.ext)
         # print self.path
-        print type(frame)
         stringImg = frame.tobytes()
         cv2.imwrite(self.path,frame)
 
@@ -36,18 +40,14 @@ class TempImage:
             json['cameraId'] = id
             json['time'] = int(self.fileName)
             json['date'] = os.path.getctime(self.path)
-            send = 'https://green-guard.herokuapp.com/api/cameras/newCamera'
-            # send = 'http://'+self.serverIp+':3000/api/cameras/cameraAlert/'
-            # res = requests.post('http://localhost:3000/api/cameras/cameraAlert/', data=json)
+            send =serverIp+'/api/cameras/cameraAlert/'
             res = requests.post( send + str(id),
                                 data=json, files=img_file)
 
-
-
-
             if res.status_code is 200:
                 # os.remove(self.path)
-                print '200'
+                print ('200')
+
         else:
             json = {}
             img_file = {
@@ -57,11 +57,10 @@ class TempImage:
             json['time'] = int(self.fileName)
             json['date'] = os.path.getctime(self.path)
             print json
-            # res = requests.post('http://'+self.serverIp+':3000/api/cameras/cameraAlertPhoto/' + str(self.eventNumber),
-            #                 data=json, files=img_file)
-            res = requests.post('https://green-guard.herokuapp.com/api/cameras/cameraAlertPhoto/' + str(self.eventNumber),
+            send = serverIp+'/api/cameras/cameraAlertPhoto/'
+            res = requests.post(send + str(self.eventNumber),
                             data=json, files=img_file)
 
             if res.status_code is 200:
                 # os.remove(self.path)
-                print '200'
+                print ('200')
