@@ -18,7 +18,8 @@ class camera():
 
     def cameraInitialise(self):
         print ('[camera initialized]')
-        camera = cv2.VideoCapture(0)
+        # camera = cv2.VideoCapture(0)
+        camera = cv2.VideoCapture("./picController/carInThePool.avi")
         time.sleep(2)
         status,frame = camera.read()
         if(status):
@@ -38,8 +39,9 @@ class camera():
         # rule= json.load(open('theRule.json'))
         # myArray = np.array(rule["polygon"])
 
-        camera = cv2.VideoCapture(0)
-        time.sleep(2)
+        # camera = cv2.VideoCapture(0)
+        camera = cv2.VideoCapture("./picController/carInThePool.avi")
+        # time.sleep(2)
         # allow the camera to warmup, then initialize the average frame, last
         # uploaded timestamp, and frame motion counter
         print ("[INFO] warming up...")
@@ -72,6 +74,7 @@ class camera():
                 print ("[INFO] starting background model...")
                 print (timestamp)
                 avg = gray.copy().astype("float")
+
                 mask = np.zeros((gray.shape[0], gray.shape[1]), dtype=np.uint8)
                 cv2.fillConvexPoly(mask,self.myPolygon, 1)
                 mask = mask.astype(np.bool)
@@ -92,7 +95,11 @@ class camera():
             else:
                 screen = gray
 
-
+            screenSize = cv2.countNonZero(screen)
+            print (screen.shape)
+            print ("screenSize:", screenSize)
+            screenSize *= 0.02
+            print ("screenSize:", screenSize)
 
             # accumulate the weighted average between the current frame and
             # previous frames, then compute the difference between the current
@@ -102,16 +109,12 @@ class camera():
 
             # threshold the delta image, dilate the thresholded image to fill
             # in holes, then find contours on thresholded image
-            thresh = cv2.threshold(frameDelta,  conf["delta_thresh"], 255,
-                                   cv2.THRESH_BINARY)[1]
+            thresh = cv2.threshold(frameDelta,  conf["delta_thresh"], 255,cv2.THRESH_BINARY)[1]
             thresh = cv2.dilate(thresh, None, iterations=2)
-            im2, cnts, hierarchy = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,
-                                                    cv2.CHAIN_APPROX_SIMPLE)
-
+            im2, cnts, hierarchy = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             for c in cnts:
                 # if the contour is too small, ignore it
-                if cv2.contourArea(c) < conf["min_area"]:
-
+                if cv2.contourArea(c) < screenSize:
                     continue
 
                 # compute the bounding box for the contour, draw it on the frame,
@@ -141,7 +144,7 @@ class camera():
                         # print eventNumber, ( timestamp-lastUploaded).seconds
                         fileName = time.time()
                         self.pictureSaverAndSender.createPicture(fileName, frame, eventNumber)                          # create pictuer
-                        self.pictureSaverAndSender.sendPicture(self.cameraId)                                           # send picture
+                        # self.pictureSaverAndSender.sendPicture(self.cameraId)                                           # send picture
                         alertNumber+=1
                         # upload the image to Dropbox and cleanup the tempory image
                         print ("[UPLOAD] {}".format(ts))
@@ -166,21 +169,16 @@ class camera():
             if conf["show_video"]:
                 # display the security feed
                 cv2.imshow("Security Feed", frame)
-                cv2.imshow("Frame Delta", frameDelta)
-                cv2.imshow('Thresh', thresh)
+                # cv2.imshow("Frame Delta", frameDelta)
+                # cv2.imshow('Thresh', thresh)
                 cv2.imshow('screen', screen)
 
-                key = cv2.waitKey(1) & 0xFF
+                cv2.waitKey(1) & 0xFF
 
-                # if the `q` key is pressed, break from the lop
-                if key == ord("q"):
-                    break
-
-                    # clear the stream in preparation for the next frame
-                    # rawCapture.truncate(0)
+        # clear the stream in preparation for the next frame
         camera.release()
         cv2.destroyAllWindows()
 
-    def updateRule(self,polygon):
-        self.myPolygon = polygon
+    # def updateRule(self,polygon):
+    #     self.myPolygon = polygon
 

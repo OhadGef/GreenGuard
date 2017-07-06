@@ -1,14 +1,7 @@
 {
-	"caneraID": "Green-01",
 	"show_video": true,
-	"dropbox_key": "opn8f1k50rjqd01",
-	"dropbox_secret": "cdx2pcff0vlreme",
-	"dropbox_base_path": "camra-1",
 	"min_time_events": 10,
-	"min_upload_seconds": 2.5,
-	"min_motion_frames": 4,
-	"camera_warmup_time": 2.0,
-	"delta_thresh": 5,
-	"width": 500,
-	"min_area": 5000
+	"min_upload_seconds": 2,
+	"min_motion_frames": 8,
+	"delta_thresh": 5
 }

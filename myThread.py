@@ -6,7 +6,7 @@ class MyThread:
 
     def __init__(self):
         print ("[init My Tread class]")
-        self.cameraId = "1136485955"
+        self.cameraId = "1136485950"
         # self.cameraId = uuid.uuid4().int & (1<<32)-1
         print ("camera id: " ,self.cameraId)
         self.createTread()
