@@ -2,23 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="adf2a4d7-8aa2-4125-960b-db102d2cd962" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/dog.jpg" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/dog1.jpg" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/picController/carInThePool.avi" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/picController/carInThePoolHD.avi" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/picController/img/568818899/1499365314.8.jpg" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/white.jpg" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/picController/img/frame-1.jpg" afterPath="$PROJECT_DIR$/picController/img/frame-1.jpg" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dog.jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/dog1.jpg" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/white.jpg" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/camera.py" afterPath="$PROJECT_DIR$/camera.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/conf.json" afterPath="$PROJECT_DIR$/conf.json" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main.py" afterPath="$PROJECT_DIR$/main.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/myThread.py" afterPath="$PROJECT_DIR$/myThread.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test.py" afterPath="$PROJECT_DIR$/test.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/theRule.json" afterPath="$PROJECT_DIR$/theRule.json" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/webConfig.py" afterPath="$PROJECT_DIR$/webConfig.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -44,7 +31,7 @@
       <file leaf-file-name="camera.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/camera.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1819">
+            <state relative-caret-position="-238">
               <caret line="43" column="23" lean-forward="false" selection-start-line="43" selection-start-column="23" selection-end-line="43" selection-end-column="23" />
               <folding />
             </state>
@@ -971,7 +958,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/camera.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1819">
+        <state relative-caret-position="-238">
           <caret line="43" column="23" lean-forward="false" selection-start-line="43" selection-start-column="23" selection-end-line="43" selection-end-column="23" />
           <folding />
         </state>
