@@ -18,9 +18,8 @@ class MyThread:
     def createTread(self):
         print ('[Tread crated]')
         self.stopEvent = threading.Event()
-        self.getPic = threading.Event()
         self.cam1 = camera(self.cameraId)
-        self.cameraTread = threading.Thread( name='camera-1', target=self.cam1.run, args=(self.stopEvent,self.getPic))
+        self.cameraTread = threading.Thread( name='camera-1', target=self.cam1.run, args=(self.stopEvent))
 
     def startCamera(self):
         print ('[Camera started ]')

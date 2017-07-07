@@ -29,7 +29,7 @@ class camera():
             return 11
 
 
-    def run(self,  stop_event, getPic ):
+    def run(self,  stop_event ):
         rule = json.load(open('theRule.json'))
         self.myPolygon = np.array(rule["polygon"])
         self.inOut = rule['inOut']
@@ -62,10 +62,6 @@ class camera():
             timestamp = datetime.datetime.now()
             text = "OK"
 
-            if getPic.is_set():
-                self.pictureSaverAndSender.createPicture("snapshot", frame, 0)  # create pictuer
-                # self.pictureSaverAndSender.sendPicture(self.cameraId)                   # send picture
-                getPic.clear()
 
             # resize the frame, convert it to grayscale, and blur it
             # frame = imutils.resize(frame, conf["width"])
