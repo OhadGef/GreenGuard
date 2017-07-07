@@ -7,8 +7,6 @@ import cv2
 import numpy as np
 import uuid
 
-
-
 class camera():
     def __init__(self,cameraId):
         self.cameraId = cameraId
@@ -18,8 +16,8 @@ class camera():
 
     def cameraInitialise(self):
         print ('[camera initialized]')
-        # camera = cv2.VideoCapture(0)
-        camera = cv2.VideoCapture("./picController/carInThePool.avi")
+        camera = cv2.VideoCapture(0)
+        # camera = cv2.VideoCapture("./carInThePool.avi")
         time.sleep(2)
         status,frame = camera.read()
         if(status):
@@ -31,7 +29,7 @@ class camera():
             return 11
 
 
-    def run(self,  stop_event):
+    def run(self,  stop_event, getPic ):
         rule = json.load(open('theRule.json'))
         self.myPolygon = np.array(rule["polygon"])
         self.inOut = rule['inOut']
@@ -39,30 +37,35 @@ class camera():
         # rule= json.load(open('theRule.json'))
         # myArray = np.array(rule["polygon"])
 
-        # camera = cv2.VideoCapture(0)
-        camera = cv2.VideoCapture("./picController/carInThePool.avi")
-        # time.sleep(2)
+        self.cameraRun = cv2.VideoCapture(0)
         # allow the camera to warmup, then initialize the average frame, last
+        time.sleep(2)
+        # camera = cv2.VideoCapture("./carInThePool.avi")
         # uploaded timestamp, and frame motion counter
         print ("[INFO] warming up...")
 
-        alertNumber = 0
         avg = None
+        # lastUploaded = datetime.datetime.now()
         lastUploaded = datetime.datetime.now()
-        motionCounter = 0
         eventNumber = uuid.uuid4().int & (1<<32)-1
+        # eventNumber = 0
 
 
         # capture frames from the camera
         # for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
 
         while not stop_event.is_set():
-            ret, frame = camera.read()
+            ret, frame = self.cameraRun.read()
             # grab the raw NumPy array representing the image and initialize
-            # the timestamp and occupied/unoccupied text
+            # the timestamp and Alert/Ok text
             # frame = f.array
             timestamp = datetime.datetime.now()
-            text = "Unoccupied"
+            text = "OK"
+
+            if getPic.is_set():
+                self.pictureSaverAndSender.createPicture("snapshot", frame, 0)  # create pictuer
+                # self.pictureSaverAndSender.sendPicture(self.cameraId)                   # send picture
+                getPic.clear()
 
             # resize the frame, convert it to grayscale, and blur it
             # frame = imutils.resize(frame, conf["width"])
@@ -96,10 +99,9 @@ class camera():
                 screen = gray
 
             screenSize = cv2.countNonZero(screen)
-            print (screen.shape)
-            print ("screenSize:", screenSize)
+            # print ("screenSize:", screenSize)
             screenSize *= 0.02
-            print ("screenSize:", screenSize)
+            # print ("screenSize:", screenSize)
 
             # accumulate the weighted average between the current frame and
             # previous frames, then compute the difference between the current
@@ -112,6 +114,7 @@ class camera():
             thresh = cv2.threshold(frameDelta,  conf["delta_thresh"], 255,cv2.THRESH_BINARY)[1]
             thresh = cv2.dilate(thresh, None, iterations=2)
             im2, cnts, hierarchy = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
             for c in cnts:
                 # if the contour is too small, ignore it
                 if cv2.contourArea(c) < screenSize:
@@ -121,7 +124,7 @@ class camera():
                 # and update the text
                 (x, y, w, h) = cv2.boundingRect(c)
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                text = "Occupied"
+                text = "Alert ! ! !"
 
             # draw the text and timestamp on the frame
             ts = timestamp.strftime("%d-%B-%Y--%I:%M:%S%p")
@@ -130,40 +133,26 @@ class camera():
             cv2.putText(frame, ts, (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX,
                         0.35, (0, 0, 255), 1)
 
-            # check to see if the room is occupied
-            if text == "Occupied":
+            # check to see if there is Alert
+            if text == "Alert ! ! !":
                 # check to see if enough time has passed between uploads
-
                 if (timestamp - lastUploaded).seconds >=  conf["min_upload_seconds"]:
+                    #check to see if enough time has passed between events
+                    if (timestamp - lastUploaded).seconds >= conf["min_time_events"]:
+                        eventNumber = uuid.uuid4().int & (1<<32)-1
+                        # eventNumber += 1
 
-                    # increment the motion counter
-                    motionCounter += 1
-                    # check to see if the number of frames with consistent motion is
-                    # high enough
-                    if motionCounter >=  conf["min_motion_frames"]:
-                        # print eventNumber, ( timestamp-lastUploaded).seconds
-                        fileName = time.time()
-                        self.pictureSaverAndSender.createPicture(fileName, frame, eventNumber)                          # create pictuer
-                        # self.pictureSaverAndSender.sendPicture(self.cameraId)                                           # send picture
-                        alertNumber+=1
-                        # upload the image to Dropbox and cleanup the tempory image
-                        print ("[UPLOAD] {}".format(ts))
+                    fileName = time.time()
+                    self.pictureSaverAndSender.createPicture(fileName, frame, eventNumber)                          # create pictuer
+                    self.pictureSaverAndSender.sendPicture(self.cameraId)                                           # send picture
 
-                        if (timestamp-lastUploaded).seconds >conf["min_time_events"]:
-                            eventNumber = uuid.uuid4().int & (1<<32)-1
-
-                        # write the image to temporary file
-                        # update the last uploaded timestamp and reset the motion
-                        # counter
-
-                        lastUploaded = timestamp
-                        motionCounter = 0
+                    #printing to control
+                    print ("[UPLOAD] {}".format(ts))
+                    print(timestamp-lastUploaded)
+                    print(eventNumber)
 
 
-
-            # otherwise, the room is not occupied
-            else:
-                motionCounter = 0
+                    lastUploaded = timestamp
 
             # check to see if the frames should be displayed to screen
             if conf["show_video"]:
@@ -171,14 +160,13 @@ class camera():
                 cv2.imshow("Security Feed", frame)
                 # cv2.imshow("Frame Delta", frameDelta)
                 # cv2.imshow('Thresh', thresh)
-                cv2.imshow('screen', screen)
+                # cv2.imshow('screen', screen)
 
                 cv2.waitKey(1) & 0xFF
 
         # clear the stream in preparation for the next frame
-        camera.release()
+        self.cameraRun.release()
         cv2.destroyAllWindows()
 
     # def updateRule(self,polygon):
     #     self.myPolygon = polygon
-

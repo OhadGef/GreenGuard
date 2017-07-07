@@ -1,7 +1,6 @@
 {
 	"show_video": true,
-	"min_time_events": 10,
-	"min_upload_seconds": 2,
-	"min_motion_frames": 8,
+	"min_upload_seconds": 5,
+	"min_time_events": 15,
 	"delta_thresh": 5
 }

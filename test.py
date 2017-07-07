@@ -1,15 +1,24 @@
 import cv2
-import numpy as np
 
-frame = cv2.imread("white.jpg")
-gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-BLUE_MIN = np.array([1,1], np.uint8)
-BLUE_MAX = np.array([50, 50], np.uint8)
+# Capture video from file
+cap = cv2.VideoCapture(2)
 
-# dst = cv2.inRange(gray, BLUE_MIN, BLUE_MAX)
-no_blue = cv2.countNonZero(gray)
-print('The number of blue pixels is: ' + str(no_blue))
-print gray.shape
-print BLUE_MIN.shape
-cv2.imshow("opencv",gray)
-cv2.waitKey(0)
+while True:
+
+    ret, frame = cap.read()
+
+    if ret == True:
+
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+        cv2.imshow('frame',gray)
+
+
+        if cv2.waitKey(30) & 0xFF == ord('q'):
+            break
+
+    else:
+        break
+
+cap.release()
+cv2.destroyAllWindows()

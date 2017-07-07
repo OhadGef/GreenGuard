@@ -25,14 +25,13 @@ class pictureSaverAndSender:
             os.makedirs(self.directory)
         self.path = "{path}/{fileName}{ext}".format(path=os.path.join(self.base, str(eventNumber)), fileName=fileName,
                                                     ext=self.ext)
-        # print self.path
         stringImg = frame.tobytes()
         cv2.imwrite(self.path,frame)
 
     def sendPicture(self,id):
         events = os.listdir(self.directory)
         # # loop of events
-        print events
+        print (events)
         if len(events) is 1:
             json = {}
             img_file = {'file': open(self.path, "rb")}
