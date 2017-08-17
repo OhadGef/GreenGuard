@@ -9,30 +9,27 @@ class pictureSaverAndSender:
     def __init__(self):
         self.base ="picController/img/"
         self.ext = ".jpg"
-
-
-
         return
 
     def createPicture(self, fileName, frame, eventNumber):
         # construct the file path
-        self.directory = self.base + str(eventNumber)
-        self.eventNumber = eventNumber
-        self.fileName=fileName
-        if not os.path.exists( self.directory):
-            # if len(os.listdir(self.base))>2 :
-            #     os.rmdir()
-            os.makedirs(self.directory)
-        self.path = "{path}/{fileName}{ext}".format(path=os.path.join(self.base, str(eventNumber)), fileName=fileName,
-                                                    ext=self.ext)
-        # print self.path
-        stringImg = frame.tobytes()
-        cv2.imwrite(self.path,frame)
+        if eventNumber == None:
+            self.path = "{path}{fileName}{ext}".format(path=self.base,fileName=fileName,ext=self.ext)
+            print (self.path)
+            cv2.imwrite(self.path, frame)
+        else:
+            self.directory = self.base + str(eventNumber)
+            self.eventNumber = eventNumber
+            self.fileName=fileName
+            if not os.path.exists( self.directory):
+                os.makedirs(self.directory)
+            self.path = "{path}/{fileName}{ext}".format(path=os.path.join(self.base, str(eventNumber)), fileName=fileName,ext=self.ext)
+            cv2.imwrite(self.path,frame)
+        return
 
     def sendPicture(self,id):
         events = os.listdir(self.directory)
-        # # loop of events
-        print events
+        print (events)
         if len(events) is 1:
             json = {}
             img_file = {'file': open(self.path, "rb")}
