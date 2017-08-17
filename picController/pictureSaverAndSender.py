@@ -13,6 +13,7 @@ class pictureSaverAndSender:
 
     def createPicture(self, fileName, frame, eventNumber):
         # construct the file path
+
         if eventNumber == None:
             self.path = "{path}{fileName}{ext}".format(path=self.base,fileName=fileName,ext=self.ext)
             print (self.path)
@@ -29,6 +30,7 @@ class pictureSaverAndSender:
 
     def sendPicture(self,id):
         events = os.listdir(self.directory)
+
         print (events)
         if len(events) is 1:
             json = {}

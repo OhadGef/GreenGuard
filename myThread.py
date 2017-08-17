@@ -8,7 +8,9 @@ class MyThread:
 
     def __init__(self):
         print ("[init My Tread class]")
+
         self.cameraId = "222"
+
         print ("camera id: " ,self.cameraId)
         self.createTread()
         return
@@ -27,6 +29,7 @@ class MyThread:
             self.cameraTread.start()
         except:
             print ("start createTread()")
+
             self.createTread()
             self.cameraTread.start()
         return
@@ -35,6 +38,7 @@ class MyThread:
         print (threading.enumerate())
         print (threading.active_count())
         print (threading.currentThread().getName())
+
         self.stopEvent.set()
         self.cameraTread.join(1)
         print (threading.enumerate())
@@ -47,6 +51,7 @@ class MyThread:
 
     def savePic(self):
         try:
+
             t,pic = self.cam1.cameraRun.read()
             t,buffer = cv2.imencode('.jpg',pic)
             base64Pic = base64.b64encode(buffer)
@@ -56,4 +61,5 @@ class MyThread:
             print (err)
 
     def activeThreads (self):
+
         return threading.active_count()

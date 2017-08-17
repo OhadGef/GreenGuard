@@ -17,6 +17,8 @@ class camera():
     def saveFrame1(self):
         print ('[camera initialized]')
         camera = cv2.VideoCapture(0)
+
+
         time.sleep(2)
         status,frame = camera.read()
         if(status):
@@ -27,8 +29,10 @@ class camera():
             return "can't start the camera"
 
 
-    def run(self,stop_event):
-        print ("runnnnnnn")
+
+
+    def run(self,  stop_event ):
+
         rule = json.load(open('theRule.json'))
         self.myPolygon = np.array(rule["polygon"])
         self.inOut = rule['inOut']
@@ -37,12 +41,15 @@ class camera():
         self.cameraRun = cv2.VideoCapture(0)
         # allow the camera to warmup, then initialize the average frame, last
         time.sleep(2)
+
         # uploaded timestamp, and frame motion counter
         print ("[INFO] warming up...")
 
         avg = None
+        # lastUploaded = datetime.datetime.now()
         lastUploaded = datetime.datetime.now()
         eventNumber = uuid.uuid4().int & (1<<32)-1
+        # eventNumber = 0
 
 
         # capture frames from the camera
@@ -52,8 +59,10 @@ class camera():
             ret, frame = self.cameraRun.read()
             # grab the raw NumPy array representing the image and initialize
             # the timestamp and Alert/Ok text
+
             timestamp = datetime.datetime.now()
             text = "OK"
+
 
             # resize the frame, convert it to grayscale, and blur it
             # frame = imutils.resize(frame, conf["width"])
@@ -87,7 +96,9 @@ class camera():
                 screen = gray
 
             screenSize = cv2.countNonZero(screen)
+
             screenSize *= 0.02
+
 
             # accumulate the weighted average between the current frame and
             # previous frames, then compute the difference between the current
@@ -127,14 +138,17 @@ class camera():
                     if (timestamp - lastUploaded).seconds >= conf["min_time_events"]:
                         eventNumber = uuid.uuid4().int & (1<<32)-1
 
+
                     fileName = time.time()
                     self.pictureSaverAndSender.createPicture(fileName, frame, eventNumber)                          # create pictuer
                     self.pictureSaverAndSender.sendPicture(self.cameraId)                                           # send picture
+
 
                     #printing to control
                     print ("[UPLOAD] {}".format(ts))
                     print(timestamp-lastUploaded)
                     print(eventNumber)
+
 
 
                     lastUploaded = timestamp
@@ -145,7 +159,7 @@ class camera():
                 cv2.imshow("Security Feed", frame)
                 # cv2.imshow("Frame Delta", frameDelta)
                 # cv2.imshow('Thresh', thresh)
-                cv2.imshow('screen', screen)
+                # cv2.imshow('screen', screen)
 
                 cv2.waitKey(1) & 0xFF
 
